@@ -1,0 +1,366 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distribuir Lista</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            border: 2px solid #ccc;
+            margin: auto;
+            margin-top: 80px; /* Descer o conteúdo */
+        }
+        .header {
+            margin-bottom: 30px;
+            text-align: center; /* Alinhar o título à esquerda */
+        }
+        .header img {
+            width: 150px;
+            display: block;
+            margin: 0 auto;
+        }
+        .header h1 {
+            color: #002147; /* Azul Escuro */
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 10px;
+            text-shadow: 1px 1px 2px #bbb;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+            width: 100%;
+        }
+        .form-control, .form-textarea {
+            font-size: 16px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            padding: 15px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #f8f9fa;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .form-textarea {
+            height: 150px;
+            resize: none;
+        }
+        .btn-primary {
+            background-color: #002147; /* Azul Escuro */
+            border-color: #002147; /* Azul Escuro */
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 20px;
+            margin-top: 20px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #004080; /* Azul Escuro Mais Claro */
+            border-color: #004080; /* Azul Escuro Mais Claro */
+        }
+        .alert-success {
+            text-align: center;
+            font-size: 18px;
+        }
+        .list-group-item {
+            font-size: 16px;
+        }
+        .form-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            justify-content: center;
+        }
+        .form-check-input {
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+        .form-check-label {
+            border-radius: 10px;
+            padding: 5px;
+            background-color: #f8f9fa;
+        }
+        label {
+            font-weight: bold;
+            color: #002147; /* Azul Escuro */
+        }
+        .d-flex {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .text-danger {
+            color: #e74c3c;
+        }
+        input[type="text"], textarea {
+            border-radius: 20px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            background-color: #f8f9fa;
+        }
+        select {
+            border-radius: 20px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            background-color: #0c325c;
+            color: #fff;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 60px; /* Adicionar margem no topo */
+            left: 0;
+            transition: transform 0.3s ease;
+        }
+        .sidebar img {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            width: 100%;
+            text-align: left;
+        }
+        .sidebar a:hover {
+            background-color: #004080;
+        }
+        .dropdown {
+            position: relative;
+            display: block;
+            width: 100%;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background-color: #0c325c;
+            min-width: 200px;
+            z-index: 1;
+            border-radius: 0 10px 10px 0;
+        }
+        .dropdown-content a {
+            color: #fff;
+            padding: 10px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+            border-radius: 0;
+        }
+        .dropdown-content a:hover {
+            background-color: #004080;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .main-content {
+            margin-left: 220px; /* Espaço para o menu lateral */
+            width: calc(100% - 240px); /* Ajuste a largura para o espaço ocupado pelo menu */
+            padding: 20px; /* Adiciona um pouco de preenchimento para o conteúdo principal */
+            transition: margin-left 0.3s ease;
+        }
+        .sidebar.closed {
+            transform: translateX(-100%);
+        }
+        .main-content.closed {
+            margin-left: 20px;
+            width: calc(100% - 40px);
+        }
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #001f3f; /* Azul Escuro */
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 60px; /* Ajuste a altura */
+            z-index: 1000;
+            transition: left 0.3s ease, width 0.3s ease;
+        }
+        .header-bar .title {
+            font-size: 1.5em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        .header-bar .user-info {
+            font-size: 1em;
+        }
+        .toggle-btn {
+            cursor: pointer;
+            margin-right: 10px; /* Espaço entre a seta e o título */
+        }
+        .watermark {
+            position: fixed;
+            bottom: -100px; /* Ajuste para que apenas parte da marca d'água seja visível */
+            right: -100px; /* Posicionando no canto inferior direito */
+            opacity: 0.045; /* Opacidade reduzida para que seja sutil */
+            width: 800px; /* Ajuste o tamanho conforme desejado */
+            z-index: -1;
+            pointer-events: none; /* Evita que a marca d'água interfira com outros elementos */
+        }
+    </style>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var tipoListaField = document.getElementById('id_tipo_lista');
+            tipoListaField.addEventListener('change', function () {
+                var form = document.getElementById('distribuir-lista-form');
+                var tipo_lista = tipoListaField.value;
+                var url = new URL(window.location.href);
+                url.searchParams.set('tipo_lista', tipo_lista);
+                window.location.href = url.toString();
+            });
+
+            // Mostrar alerta de sucesso se houver distribuições
+            {% if distribuicoes %}
+            Swal.fire({
+                icon: 'success',
+                title: 'Sucesso!',
+                text: 'Lista distribuída com sucesso!',
+                confirmButtonText: 'OK'
+            });
+            {% endif %}
+
+            var toggleBtn = document.getElementById('toggle-btn');
+            var sidebar = document.querySelector('.sidebar');
+            var mainContent = document.querySelector('.main-content');
+
+            toggleBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('closed');
+                mainContent.classList.toggle('closed');
+                var icon = toggleBtn.querySelector('i');
+                if (sidebar.classList.contains('closed')) {
+                    icon.classList.remove('fa-arrow-left');
+                    icon.classList.add('fa-arrow-right');
+                } else {
+                    icon.classList.remove('fa-arrow-right');
+                    icon.classList.add('fa-arrow-left');
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="header-bar">
+        <div class="toggle-btn" id="toggle-btn">
+            <i class="fas fa-arrow-left"></i>
+        </div>
+        <div class="user-info">Usuário logado: {{ user.get_full_name }} ({{ user.username }})</div>
+    </div>
+
+    <div class="sidebar">
+        <img src="{% static 'LOGO.png' %}" alt="Logo da Empresa">
+        <a href="{% url 'index_adm' %}"><i class="fas fa-home"></i> Início</a>
+        <a href="{% url 'distribuir_lista' %}"><i class="fas fa-list"></i> Distribuir Lista</a>
+        <a href="{% url 'resultados_adm' %}"><i class="fas fa-pen-to-square"></i> Resultados da Equipe</a>
+        <a href="{% url 'agenda_adm' %}"><i class="fas fa-book"></i> Agendas</a>
+
+        <div class="dropdown">
+            <a href="#"><i class="fas fa-users"></i> Usuários</a>
+            <div class="dropdown-content">
+                <a href="{% url 'create_user' %}"><i class="fas fa-user-plus"></i> Criar Usuário</a>
+                <a href="{% url 'user_list' %}"><i class="fas fa-user-edit"></i> Lista de Usuários</a>
+            </div>
+        </div>
+        <a href="{% url 'dashboard' %}"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Sair</a>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <div class="header">
+                <img src="{% static 'LOGO.png' %}" alt="Logo">
+                <h1>Distribuir Lista</h1>
+            </div>
+            <form method="post" id="distribuir-lista-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_tipo_lista">Tipo de Lista:</label>
+                    {{ form.tipo_lista }}
+                    <div class="text-danger">{{ form.tipo_lista.errors }}</div>
+                </div>
+                <div class="form-group">
+                    <label for="id_nome_lista">Nome da Lista:</label>
+                    {{ form.nome_lista }}
+                    <div class="text-danger">{{ form.nome_lista.errors }}</div>
+                </div>
+                <div class="form-group">
+                    <label for="id_lista">Insira a lista de nomes e códigos:</label>
+                    {{ form.lista }}
+                    <div class="text-danger">{{ form.lista.errors }}</div>
+                </div>
+                <div class="form-group">
+                    <label for="id_colaboradores">Selecione os colaboradores:</label>
+                    <div class="d-flex">
+                        {% for colaborador in form.fields.colaboradores.queryset %}
+                            <div class="form-check me-3">
+                                <input class="form-check-input" type="checkbox" name="colaboradores" value="{{ colaborador.id }}" id="colaborador-{{ colaborador.id }}">
+                                <label class="form-check-label" for="colaborador-{{ colaborador.id }}">
+                                    {{ colaborador.username }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-danger">{{ form.colaboradores.errors }}</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Distribuir</button>
+            </form>
+            {% if distribuicoes %}
+                <h3 class="mt-4">Listas Distribuídas</h3>
+                <ul class="list-group">
+                    {% for distribuicao in distribuicoes %}
+                        <li class="list-group-item">{{ distribuicao.codigo }} - {{ distribuicao.nome }} ({{ distribuicao.colaborador.username }})</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <img src="{% static 'LOGOB.png' %}" alt="Marca d'água" class="watermark">
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

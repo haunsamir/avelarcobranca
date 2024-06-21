@@ -1,0 +1,291 @@
+{% include 'colaboradores/calculo_maquininha_modal.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Início</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f8ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container-fluid {
+            display: flex;
+            width: 100%;
+        }
+        .sidebar {
+            background-color: #0c325c;
+            color: #fff;
+            padding: 20px;
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 60px; /* Adicionar margem no topo */
+            left: 0;
+            transition: transform 0.3s ease;
+            border-radius: 0; /* Remover a borda arredondada */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar img {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+            width: 100%;
+            text-align: left;
+        }
+        .sidebar a:hover {
+            background-color: #004080;
+            transform: scale(1.05);
+        }
+        .dropdown {
+            position: relative;
+            display: block;
+            width: 100%;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background-color: #0c325c;
+            min-width: 200px;
+            z-index: 1;
+            border-radius: 0 10px 10px 0;
+        }
+        .dropdown-content a {
+            color: #fff;
+            padding: 10px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+            border-radius: 0;
+        }
+        .dropdown-content a:hover {
+            background-color: #004080;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .main-content {
+            margin-left: 220px; /* Espaço para o menu lateral */
+            width: calc(100% - 240px); /* Ajuste a largura para o espaço ocupado pelo menu */
+            padding: 20px; /* Adiciona um pouco de preenchimento para o conteúdo principal */
+            transition: margin-left 0.3s ease;
+        }
+        .sidebar.closed {
+            transform: translateX(-100%);
+        }
+        .main-content.closed {
+            margin-left: 20px;
+            width: calc(100% - 40px);
+        }
+        .content {
+            margin-top: 80px;
+            width: 100%;
+        }
+        .header-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #0c325c;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 2px solid #0c325c;
+            padding-bottom: 10px;
+        }
+        .event-card {
+            background-color: #ffffff;
+            border: 1px solid #0c325c;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            padding: 15px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        .event-card:hover {
+            background-color: #f0f0f0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .event-header {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .event-detail {
+            margin-bottom: 5px;
+        }
+        .btn-ok {
+            background-color: #0c325c;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-ok:hover {
+            background-color: #004080;
+        }
+        .watermark {
+            position: fixed;
+            bottom: -100px; /* Ajuste para que apenas parte da marca d'água seja visível */
+            right: -100px; /* Posicionando no canto inferior direito */
+            opacity: 0.045; /* Opacidade reduzida para que seja sutil */
+            width: 800px; /* Ajuste o tamanho conforme desejado */
+            z-index: -1;
+            pointer-events: none; /* Evita que a marca d'água interfira com outros elementos */
+        }
+    </style>
+</head>
+<body>
+    {% include 'colaboradores/_loop_header.html' %}
+    <div class="container-fluid">
+        <div class="sidebar">
+            <img src="{% static 'LOGO.PNG' %}" alt="Logo da Empresa">
+            <a href="{% url 'index' %}"><i class="fas fa-home"></i> Início</a>
+            <a href="{% url 'minhas_listas' %}"><i class="fas fa-list"></i> Minhas Listas</a>
+            <a href="{% url 'caderno' %}"><i class="fas fa-book"></i> Caderno</a>
+            <a href="{% url 'agenda' %}"><i class="fas fa-calendar-alt"></i> Agenda</a>
+            <a href="{% url 'resultados' %}"><i class="fas fa-chart-line"></i> Resultados</a>
+            <a href="{% url 'material_convalescente' %}"><i class="fas fa-box"></i> Material Convalescente</a>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#calculoMaquininhaModal"><i class="fas fa-calculator"></i> Cálculo de Maquininha</a>
+            <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+        <div class="main-content">
+            <div class="content">
+                <div class="header">
+                    <div class="header-title">Lembretes de Hoje</div>
+                </div>
+                {% if eventos_hoje %}
+                    {% for evento in eventos_hoje %}
+                        <div class="event-card">
+                            <div class="event-header">Código: {{ evento.codigo }}</div>
+                            <div class="event-detail"><strong>Observação:</strong> {{ evento.observacao }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Não há lembretes para hoje.</p>
+                {% endif %}
+                <div class="header">
+                    <div class="header-title">Listas de Hoje</div>
+                </div>
+                {% if listas_hoje %}
+                    {% for lista in listas_hoje %}
+                        <div class="event-card">
+                            <div class="event-header">
+                                <a href="{% url 'detalhes_lista' lista.id_lista %}">{{ lista.nome_lista }}</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Não há listas distribuídas para hoje.</p>
+                {% endif %}
+                <div class="header">
+                    <div class="header-title">Picotes Excluídos</div>
+                </div>
+                {% if picotes_excluidos %}
+                    {% for picote in picotes_excluidos %}
+                        <div class="event-card">
+                            <div class="event-header">Código Cliente: {{ picote.codigo_cliente }}</div>
+                            <div class="event-detail"><strong>Nome Cliente:</strong> {{ picote.nome_cliente }}</div>
+                            <div class="event-detail"><strong>Motivo:</strong> {{ picote.motivo }}</div>
+                            <div class="event-detail"><strong>Parcela:</strong> {{ picote.parcela }}</div>
+                            <div class="event-detail"><strong>Excluído por:</strong> {{ picote.colaborador.username }}</div>
+                            <button class="btn-ok" onclick="confirmarMarcacao({{ picote.id }})">Ok</button>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Não há picotes excluídos sem confirmação.</p>
+                {% endif %}
+                <img src="{% static 'LOGOB.png' %}" alt="Marca d'água" class="watermark">
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var toggleBtn = document.getElementById('toggle-btn');
+            var sidebar = document.querySelector('.sidebar');
+            var mainContent = document.querySelector('.main-content');
+
+            toggleBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('closed');
+                mainContent.classList.toggle('closed');
+                var icon = toggleBtn.querySelector('i');
+                if (sidebar.classList.contains('closed')) {
+                    icon.classList.remove('fa-arrow-left');
+                    icon.classList.add('fa-arrow-right');
+                } else {
+                    icon.classList.remove('fa-arrow-right');
+                    icon.classList.add('fa-arrow-left');
+                }
+            });
+        });
+
+        function confirmarMarcacao(picoteId) {
+            Swal.fire({
+                title: 'Atenção!',
+                text: "Aceitar exclusão do picote no caderno?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#0c325c',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sim, aceitar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    marcarComoLido(picoteId);
+                }
+            });
+        }
+
+        function marcarComoLido(picoteId) {
+            fetch(`{% url 'marcar_como_lido' %}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ id: picoteId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire(
+                        'Marcado!',
+                        'O picote foi marcado como lido.',
+                        'success'
+                    ).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire(
+                        'Erro!',
+                        'Ocorreu um erro ao marcar como lido.',
+                        'error'
+                    );
+                }
+            });
+        }
+    </script>
+</body>
+</html>

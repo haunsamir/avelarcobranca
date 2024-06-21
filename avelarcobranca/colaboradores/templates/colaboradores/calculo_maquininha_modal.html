@@ -1,0 +1,115 @@
+<div class="modal fade" id="calculoMaquininhaModal" tabindex="-1" aria-labelledby="calculoMaquininhaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="calculoMaquininhaModalLabel">Cálculo de Maquininha</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="calculoMaquininhaForm">
+                    <div class="mb-3">
+                        <label for="valor" class="form-label">Valor (R$)</label>
+                        <input type="number" class="form-control" id="valor" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bandeira" class="form-label">Bandeira</label>
+                        <select class="form-select" id="bandeira" required>
+                            <option value="mastervisa">Master/Visa</option>
+                            <option value="elo">Elo</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="parcelas" class="form-label">Número de Parcelas</label>
+                        <select class="form-select" id="parcelas" required>
+                            <option value="Debito - 1">Débito</option>
+                            <option value="A vista - 1">Crédito à vista</option>
+                            <option value="2">2x - Crédito</option>
+                            <option value="3">3x - Crédito</option>
+                            <option value="4">4x - Crédito</option>
+                            <option value="5">5x - Crédito</option>
+                            <option value="6">6x - Crédito</option>
+                            <option value="7">7x - Crédito</option>
+                            <option value="8">8x - Crédito</option>
+                            <option value="9">9x - Crédito</option>
+                            <option value="10">10x - Crédito</option>
+                            <option value="11">11x - Crédito</option>
+                            <option value="12">12x - Crédito</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Calcular</button>
+                </form>
+                <div id="resultado" class="mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('calculoMaquininhaForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const valor = parseFloat(document.getElementById('valor').value);
+        const bandeira = document.getElementById('bandeira').value;
+        const parcelas = document.getElementById('parcelas').value;
+        let taxa = 0;
+
+        if (bandeira === 'elo') {
+            switch(parcelas) {
+                case 'Debito - 1':
+                    taxa = 0.0125; // Débito Elo
+                    break;
+                case 'A vista - 1':
+                    taxa = 0.0195; // Crédito à vista Elo
+                    break;
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                    taxa = 0.0225; // Crédito 2 a 6 Elo
+                    break;
+                case '7':
+                case '8':
+                case '9':
+                case '10':
+                case '11':
+                case '12':
+                    taxa = 0.0249; // Crédito 7 a 12 Elo
+                    break;
+            }
+        } else {
+            switch(parcelas) {
+                case 'Debito - 1':
+                    taxa = 0.0075; // Débito Master/Visa
+                    break;
+                case 'A vista - 1':
+                    taxa = 0.0145; // Crédito à vista Master/Visa
+                    break;
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                    taxa = 0.0175; // Crédito 2 a 6 Master/Visa
+                    break;
+                case '7':
+                case '8':
+                case '9':
+                case '10':
+                case '11':
+                case '12':
+                    taxa = 0.0197; // Crédito 7 a 12 Master/Visa
+                    break;
+            }
+        }
+
+        const valorFinal = valor * (1 + taxa);
+        const valorParcela = valorFinal / (parcelas === 'Debito - 1' || parcelas === 'A vista - 1' ? 1 : parseInt(parcelas));
+        document.getElementById('resultado').innerHTML = `
+            <p>Valor Final: R$ ${valorFinal.toFixed(2)}</p>
+            <p>Valor por Parcela (${parcelas}x): R$ ${valorParcela.toFixed(2)}</p>
+        `;
+    });
+</script>

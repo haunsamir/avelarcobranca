@@ -1,0 +1,545 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados Administrativos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f8ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container-fluid {
+            display: flex;
+            width: 100%;
+        }
+        .sidebar {
+            background-color: #0c325c;
+            color: #fff;
+            padding: 20px;
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 60px; /* Adicionar margem no topo */
+            left: 0;
+            transition: transform 0.3s ease;
+            border-radius: 0; /* Remover a borda arredondada */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar img {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            width: 100%;
+            text-align: left;
+        }
+        .sidebar a:hover {
+            background-color: #004080;
+        }
+        .dropdown {
+            position: relative;
+            display: block;
+            width: 100%;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background-color: #0c325c;
+            min-width: 200px;
+            z-index: 1;
+            border-radius: 0 10px 10px 0;
+        }
+        .dropdown-content a {
+            color: #fff;
+            padding: 10px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+            border-radius: 0;
+        }
+        .dropdown-content a:hover {
+            background-color: #004080;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .main-content {
+            margin-left: 220px; /* Espaço para o menu lateral */
+            width: calc(100% - 240px); /* Ajuste a largura para o espaço ocupado pelo menu */
+            padding: 20px; /* Adiciona um pouco de preenchimento para o conteúdo principal */
+            transition: margin-left 0.3s ease;
+        }
+        .sidebar.closed {
+            transform: translateX(-100%);
+        }
+        .main-content.closed {
+            margin-left: 0px;
+            width: calc(100% - 40px);
+        }
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #001f3f; /* Azul Escuro */
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 60px; /* Ajuste a altura */
+            z-index: 1000;
+            transition: left 0.3s ease, width 0.3s ease;
+        }
+        .header-bar .title {
+            font-size: 1.5em;
+            font-weight: bold;
+            display: flex;
+            align-items: left;
+        }
+        .header-bar .user-info {
+            font-size: 1em;
+        }
+        .toggle-btn {
+            cursor: pointer;
+            margin-right: 10px; /* Espaço entre a seta e o título */
+        }
+        .content {
+            margin-top: 80px;
+            width: 100%;
+        }
+        .table-container {
+            margin-top: 20px;
+            overflow-y: auto;
+            max-height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center; /* Alinhamento horizontal ao centro */
+        }
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background-color: #0c325c;
+        }
+        thead th {
+            color: #fff;
+            padding: 10px;
+            height: 60px; /* Ajuste a altura conforme necessário */
+            border-bottom: 2px solid #ddd;
+            vertical-align: middle; /* Alinhamento vertical ao centro */
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tbody tr:hover {
+            background-color: #ddd;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            vertical-align: middle; /* Alinhamento vertical ao centro */
+        }
+        .btn-danger {
+            background-color: #ff4c4c;
+            border: none;
+            transition: background-color 0.3s;
+        }
+        .btn-danger:hover {
+            background-color: #e60000;
+        }
+        .dashboard {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .dashboard-item {
+            background: #0c325c;
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            flex: 1 1 20%;
+            min-width: 150px;
+            text-align: center;
+            flex-direction: column;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .dashboard-item i {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .dashboard-item:hover {
+            background-color: #004080;
+            transform: translateY(-5px);
+        }
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin-top: 20px;
+        }
+        .watermark {
+            position: fixed;
+            bottom: -100px; /* Ajuste para que apenas parte da marca d'água seja visível */
+            right: -100px; /* Posicionando no canto inferior direito */
+            opacity: 0.045; /* Opacidade reduzida para que seja sutil */
+            width: 800px; /* Ajuste o tamanho conforme desejado */
+            z-index: -1;
+            pointer-events: none; /* Evita que a marca d'água interfira com outros elementos */
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var toggleBtn = document.getElementById('toggle-btn');
+            var sidebar = document.querySelector('.sidebar');
+            var mainContent = document.querySelector('.main-content');
+
+            toggleBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('closed');
+                mainContent.classList.toggle('closed');
+                var icon = toggleBtn.querySelector('i');
+                if (sidebar.classList.contains('closed')) {
+                    icon.classList.remove('fa-arrow-left');
+                    icon.classList.add('fa-arrow-right');
+                } else {
+                    icon.classList.remove('fa-arrow-right');
+                    icon.classList.add('fa-arrow-left');
+                }
+            });
+        });
+
+        function updateColaborador(colaborador) {
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('colaborador', colaborador);
+            window.location.search = urlParams.toString();
+        }
+
+        function updateMonth(month) {
+            if (month) {
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('month', month);
+                window.location.search = urlParams.toString();
+            } else {
+                alert('Por favor, selecione um mês válido.');
+            }
+        }
+
+        function removerPagamento(id) {
+            Swal.fire({
+                title: 'Tem certeza?',
+                html: `
+                    <p>Você está prestes a remover o pagamento de ID ${id}.</p>
+                    <label for="motivo">Motivo:</label>
+                    <input type="text" id="motivo" class="swal2-input" placeholder="Digite o motivo">
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sim, excluir!',
+                cancelButtonText: 'Cancelar',
+                preConfirm: () => {
+                    const motivo = Swal.getPopup().querySelector('#motivo').value;
+                    if (!motivo) {
+                        Swal.showValidationMessage(`Por favor, escreva o motivo`);
+                    }
+                    return { motivo: motivo };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const motivo = result.value.motivo;
+                    fetch("{% url 'remover_pagamento_adm' %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: `pagamento_id=${id}&motivo=${motivo}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            Swal.fire('Excluído!', 'O pagamento foi excluído com sucesso.', 'success');
+                            const rowToRemove = document.querySelector(`tr[data-id="${id}"]`);
+                            if (rowToRemove) {
+                                rowToRemove.remove();
+                            }
+                            updateDashboard();  // Atualizar o dashboard após remover o pagamento
+                        } else {
+                            Swal.fire('Erro!', data.message, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('Erro!', 'Ocorreu um erro ao tentar excluir o pagamento.', 'error');
+                    });
+                }
+            });
+        }
+
+        function updateDashboard() {
+            const urlParams = new URLSearchParams(window.location.search);
+            fetch(`{% url 'api_get_data' %}?${urlParams.toString()}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('parcelas_atrasadas').textContent = data.parcelas_atrasadas;
+                    document.getElementById('parcelas_regulares').textContent = data.parcelas_regulares;
+                    document.getElementById('parcelas_adiantadas').textContent = data.parcelas_adiantadas;
+                    document.getElementById('total_parcelas').textContent = data.total_parcelas;
+                    document.getElementById('total_clientes').textContent = data.total_clientes;
+
+                    // Atualizar o gráfico
+                    const labels = data.parcelas_por_dia.map(item => `Dia ${item.criado_em__day}`);
+                    const parcelasData = data.parcelas_por_dia.map(item => item.count);
+                    parcelasChart.data.labels = labels;
+                    parcelasChart.data.datasets[0].data = parcelasData;
+                    parcelasChart.update();
+                })
+                .catch(error => console.error('Erro ao atualizar o dashboard:', error));
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('parcelasChart').getContext('2d');
+            const parcelasPorDia = {{ parcelas_por_dia|safe }};
+            const labels = Object.keys(parcelasPorDia).map(key => `Dia ${key}`);
+            const data = Object.values(parcelasPorDia);
+
+            window.parcelasChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Parcelas por Dia',
+                        data: data,
+                        backgroundColor: 'rgba(12, 50, 92, 0.8)',
+                        borderColor: 'rgba(12, 50, 92, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Dias',
+                                color: '#0c325c',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Quantidade de Parcelas',
+                                color: '#0c325c',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                color: '#0c325c',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            cornerRadius: 4
+                        }
+                    },
+                    elements: {
+                        bar: {
+                            borderRadius: 5
+                        }
+                    },
+                    layout: {
+                        padding: {
+                            left: 0,
+                            right: 0,
+                            top: 20,
+                            bottom: 0
+                        }
+                    }
+                }
+            });
+
+            // Chamar a função para atualizar o dashboard quando a página carregar
+            updateDashboard();
+        });
+    </script>
+</head>
+<body>
+    <div class="header-bar">
+        <div class="toggle-btn" id="toggle-btn">
+            <i class="fas fa-arrow-left"></i>
+        </div>
+        <div class="title">
+        </div>
+        <div class="text-sm">Usuário logado: {{ user.get_full_name }} ({{ user.username }})</div>
+    </div>
+
+    <div class="sidebar">
+        <img src="{% static 'LOGO.PNG' %}" alt="Logo da Empresa">
+        <a href="{% url 'index_adm' %}"><i class="fas fa-home"></i> Início</a>
+        <a href="{% url 'distribuir_lista' %}"><i class="fas fa-list"></i> Distribuir Lista</a>
+        <a href="{% url 'resultados_adm' %}"><i class="fas fa-pen-to-square"></i> Resultados da Equipe</a>
+        <a href="{% url 'agenda_adm' %}"><i class="fas fa-calendar-alt"></i> Agenda</a>
+        <div class="dropdown">
+            <a href="#"><i class="fas fa-users"></i> Usuários</a>
+            <div class="dropdown-content">
+                <a href="{% url 'create_user' %}"><i class="fas fa-user-plus"></i> Criar Usuário</a>
+                <a href="{% url 'user_list' %}"><i class="fas fa-user-edit"></i> Lista de Usuários</a>
+            </div>
+        </div>
+        <a href="{% url 'dashboard' %}"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Sair</a>
+    </div>
+
+    <div class="main-content">
+        <div class="content">
+            <div class="header">
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="month">Selecione o mês:</label>
+                    <input type="month" id="month" class="form-control" value="{{ selected_month|date:'Y-m' }}" onchange="updateMonth(this.value)">
+                </div>
+                <div class="col-md-6">
+                    <label for="colaborador">Selecionar Colaborador:</label>
+                    <select name="colaborador" id="colaborador" class="form-control" onchange="updateColaborador(this.value)">
+                        <option value="">Todos</option>
+                        {% for colaborador in colaboradores %}
+                            <option value="{{ colaborador.id }}" {% if request.GET.colaborador == colaborador.id|stringformat:"s" %}selected{% endif %}>
+                                {{ colaborador.username }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="dashboard">
+                <div class="dashboard-item">
+                    <i class="fas fa-clock"></i>
+                    <div class="dashboard-info">
+                        <div class="dashboard-title">Parcelas Atrasadas</div>
+                        <div class="dashboard-value" id="parcelas_atrasadas">{{ parcelas_atrasadas }}</div>
+                    </div>
+                </div>
+                <div class="dashboard-item">
+                    <i class="fas fa-calendar-check"></i>
+                    <div class="dashboard-info">
+                        <div class="dashboard-title">Parcelas Regulares</div>
+                        <div class="dashboard-value" id="parcelas_regulares">{{ parcelas_regulares }}</div>
+                    </div>
+                </div>
+                <div class="dashboard-item">
+                    <i class="fas fa-calendar-plus"></i>
+                    <div class="dashboard-info">
+                        <div class="dashboard-title">Parcelas Adiantadas</div>
+                        <div class="dashboard-value" id="parcelas_adiantadas">{{ parcelas_adiantadas }}</div>
+                    </div>
+                </div>
+                <div class="dashboard-item">
+                    <i class="fas fa-list"></i>
+                    <div class="dashboard-info">
+                        <div class="dashboard-title">Total de Parcelas</div>
+                        <div class="dashboard-value" id="total_parcelas">{{ total_parcelas }}</div>
+                    </div>
+                </div>
+                <div class="dashboard-item">
+                    <i class="fas fa-users"></i>
+                    <div class="dashboard-info">
+                        <div class="dashboard-title">Total de Clientes</div>
+                        <div class="dashboard-value" id="total_clientes">{{ total_clientes }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="parcelasChart"></canvas>
+            </div>
+            <div class="table-container mt-4">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Código Cliente</th>
+                            <th>Titular</th>
+                            <th>Data Pgto</th>
+                            <th>Parcela</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pagamento in pagamentos %}
+                            <tr data-id="{{ pagamento.id }}">
+                                <td>{{ pagamento.id }}</td>
+                                <td>{{ pagamento.codigo_cliente }}</td>
+                                <td>{{ pagamento.nome_titular }}</td>
+                                <td>{{ pagamento.data_pgto|date:"d/m/Y" }}</td>
+                                <td>{{ pagamento.parcela }}</td>
+                                <td>
+                                    <button class="btn btn-danger" onclick="removerPagamento('{{ pagamento.id }}')">Excluir</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <img src="{% static 'LOGOB.png' %}" alt="Marca d'água" class="watermark">
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+</body>
+</html>

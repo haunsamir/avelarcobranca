@@ -1,0 +1,195 @@
+{% load static %}
+<div class="header-bar">
+    <div class="toggle-btn" id="toggle-btn">
+        <i class="fas fa-arrow-left"></i>
+    </div>
+    <div class="news-ticker">
+        <div class="news-wrapper" id="news-wrapper">
+            <div class="news-content">
+                <div class="news-item">
+                    Resultado Equipe: {{ picotes_moc_count }}
+                    <i class="fas fa-minus divider"></i>
+                    Meta: {{ meta_picotes }}
+                    <i class="fas fa-minus divider"></i>
+                    Percentual da Meta: {{ percentual_meta_picotes }}%
+                </div>
+                <div class="news-item">
+                    Picotes no Caderno: {{ pagamentos_transferidos_count }}
+                    <i class="fas fa-minus divider"></i>
+                    Meta: {{ meta_pagamentos }}
+                    <i class="fas fa-minus divider"></i>
+                    Percentual da Meta: {{ percentual_meta_pagamentos }}%
+                </div>
+            </div>
+            <div class="news-content">
+                <div class="news-item">
+                    Resultado Equipe: {{ picotes_moc_count }}
+                    <i class="fas fa-minus divider"></i>
+                    Meta: {{ meta_picotes }}
+                    <i class="fas fa-minus divider"></i>
+                    Percentual da Meta: {{ percentual_meta_picotes }}%
+                </div>
+                <div class="news-item">
+                    Picotes no Caderno: {{ pagamentos_transferidos_count }}
+                    <i class="fas fa-minus divider"></i>
+                    Meta: {{ meta_pagamentos }}
+                    <i class="fas fa-minus divider"></i>
+                    Percentual da Meta: {{ percentual_meta_pagamentos }}%
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-sm">Usuário logado: {{ user.get_full_name }} ({{ user.username }})</div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtn = document.getElementById('toggle-btn');
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+        const toggleIcon = toggleBtn.querySelector('i');
+
+        toggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('closed');
+            mainContent.classList.toggle('closed');
+
+            if (sidebar.classList.contains('closed')) {
+                toggleIcon.classList.remove('fa-arrow-left');
+                toggleIcon.classList.add('fa-arrow-right');
+            } else {
+                toggleIcon.classList.remove('fa-arrow-right');
+                toggleIcon.classList.add('fa-arrow-left');
+            }
+        });
+
+        function updateTicker() {
+            const now = new Date();
+            const month = now.getMonth() + 1; // Janeiro é 0!
+            const year = now.getFullYear();
+            const url = `{% url 'ticker_data' %}?month=${month}&year=${year}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const newsWrapper = document.getElementById('news-wrapper');
+                    newsWrapper.innerHTML = `
+                        <div class="news-content">
+                            <div class="news-item">
+                                Meta Geral: ${data.picotes_moc_count}
+                                <i class="fas fa-minus divider"></i>
+                                Meta: ${data.meta_picotes}
+                                <i class="fas fa-minus divider"></i>
+                                Percentual da Meta: ${data.percentual_meta_picotes}%
+                            </div>
+                            <div class="news-item">
+                                Picotes no Caderno: ${data.pagamentos_transferidos_count}
+                                <i class="fas fa-minus divider"></i>
+                                Meta: ${data.meta_pagamentos}
+                                <i class="fas fa-minus divider"></i>
+                                Percentual da Meta: ${data.percentual_meta_pagamentos}%
+                            </div>
+                        </div>
+                        <div class="news-content">
+                            <div class="news-item">
+                                Meta Geral: ${data.picotes_moc_count}
+                                <i class="fas fa-minus divider"></i>
+                                Meta: ${data.meta_picotes}
+                                <i class="fas fa-minus divider"></i>
+                                Percentual da Meta: ${data.percentual_meta_picotes}%
+                            </div>
+                            <div class="news-item">
+                                Picotes no Caderno: ${data.pagamentos_transferidos_count}
+                                <i class="fas fa-minus divider"></i>
+                                Meta: ${data.meta_pagamentos}
+                                <i class="fas fa-minus divider"></i>
+                                Percentual da Meta: ${data.percentual_meta_pagamentos}%
+                            </div>
+                        </div>
+                    `;
+                })
+                .catch(error => console.error('Erro ao atualizar o ticker:', error));
+        }
+
+        setInterval(updateTicker, 30000); // Atualiza a cada 30 segundos
+        updateTicker(); // Atualiza imediatamente ao carregar a página
+    });
+</script>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
+
+    .header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        background: #001f3f;
+        color: #ffffff;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 60px;
+        z-index: 1000;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        font-family: 'Open Sans', sans-serif;
+    }
+    .toggle-btn {
+        font-size: 1.5em;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+    .toggle-btn:hover {
+        transform: scale(1.2);
+    }
+    .news-ticker {
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        width: 80%;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .news-wrapper {
+        display: flex;
+        white-space: nowrap;
+        animation: ticker 35s linear infinite;
+    }
+    .news-content {
+        display: flex;
+    }
+    .news-item {
+        display: inline-block;
+        padding: 0 50px;
+        letter-spacing: 1px;
+    }
+    .divider {
+        margin: 0 10px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.6em;
+    }
+    .text-sm {
+        font-size: 0.9em;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 10px 15px;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+    }
+    .text-sm:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+    @keyframes ticker {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+    .sidebar.closed {
+        transform: translateX(-100%);
+    }
+    .main-content.closed {
+        margin-left: 20px;
+        width: calc(100% - 40px);
+    }
+</style>

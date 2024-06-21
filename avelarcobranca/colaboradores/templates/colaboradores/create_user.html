@@ -1,0 +1,165 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Usuário</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0d1b2a, #1b263b);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #1e3a5f;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        .header img {
+            margin-bottom: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 80%;
+        }
+        .header h1 {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-label {
+            color: #fff;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-control {
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            padding: 10px;
+            background-color: #f8f9fa;
+            width: 100%;
+        }
+        .text-danger {
+            color: #e74c3c;
+        }
+        .btn-primary, .btn-secondary {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background-color 0.3s, border-color 0.3s;
+            margin-bottom: 10px;
+        }
+        .btn-primary {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .btn-primary:hover,
+        .btn-primary:focus,
+        .btn-primary:active {
+            background-color: #004494;
+            border-color: #004494;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+        .btn-secondary:hover,
+        .btn-secondary:focus,
+        .btn-secondary:active {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+        .alert-success {
+            text-align: center;
+            font-size: 18px;
+            color: #28a745;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+    <script>
+        function toggleColaboradorType() {
+            var userType = document.getElementById('id_user_type');
+            var colaboradorType = document.getElementById('id_colaborador_type').parentElement;
+            if (userType.value === 'colaborador') {
+                colaboradorType.style.display = 'block';
+            } else {
+                colaboradorType.style.display = 'none';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            toggleColaboradorType();
+            document.getElementById('id_user_type').addEventListener('change', toggleColaboradorType);
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{% static 'LOGO.png' %}" alt="Logo da Empresa">
+            <h1>Criar Usuário</h1>
+        </div>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_username" class="form-label">Nome de Usuário</label>
+                {{ form.username }}
+                <div class="text-danger">{{ form.username.errors }}</div>
+            </div>
+            <div class="form-group">
+                <label for="id_password1" class="form-label">Senha</label>
+                {{ form.password1 }}
+                <div class="text-danger">{{ form.password1.errors }}</div>
+            </div>
+            <div class="form-group">
+                <label for="id_password2" class="form-label">Confirmação de Senha</label>
+                {{ form.password2 }}
+                <div class="text-danger">{{ form.password2.errors }}</div>
+            </div>
+            <div class="form-group">
+                <label for="id_user_type" class="form-label">Tipo de Usuário</label>
+                {{ form.user_type }}
+                <div class="text-danger">{{ form.user_type.errors }}</div>
+            </div>
+            <div class="form-group" id="colaborador-type-group">
+                <label for="id_colaborador_type" class="form-label">Tipo de Colaborador</label>
+                {{ form.colaborador_type }}
+                <div class="text-danger">{{ form.colaborador_type.errors }}</div>
+            </div>
+            <button type="submit" class="btn btn-primary">Criar</button>
+            <a href="{% url 'index_adm' %}" class="btn btn-secondary">Voltar</a>
+        </form>
+    </div>
+</body>
+</html>

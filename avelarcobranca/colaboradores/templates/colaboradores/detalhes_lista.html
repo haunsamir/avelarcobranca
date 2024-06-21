@@ -1,0 +1,490 @@
+{% load static %}
+{% load dictionary_extras %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ nome_lista }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f8ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container-fluid {
+            display: flex;
+            width: 100%;
+        }
+        .sidebar {
+            background-color: #0c325c;
+            color: #fff;
+            padding: 20px;
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 60px; 
+            left: 0;
+            transition: transform 0.3s ease;
+            border-radius: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar img {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+            width: 100%;
+            text-align: left;
+        }
+        .sidebar a:hover {
+            background-color: #004080;
+            transform: scale(1.05);
+        }
+        .dropdown {
+            position: relative;
+            display: block;
+            width: 100%;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background-color: #0c325c;
+            min-width: 200px;
+            z-index: 1;
+            border-radius: 0 10px 10px 0;
+        }
+        .dropdown-content a {
+            color: #fff;
+            padding: 10px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+            border-radius: 0;
+        }
+        .dropdown-content a:hover {
+            background-color: #004080;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .main-content {
+            margin-left: 220px;
+            width: calc(100% - 240px);
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+        .sidebar.closed {
+            transform: translateX(-100%);
+        }
+        .main-content.closed {
+            margin-left: 20px;
+            width: calc(100% - 40px);
+        }
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #001f3f;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 60px;
+            z-index: 1000;
+            transition: left 0.3s ease, width 0.3s ease;
+        }
+        .header-bar .title {
+            font-size: 1.5em;
+            font-weight: bold;
+            display: flex;
+            align-items: left;
+        }
+        .header-bar .user-info {
+            font-size: 1em;
+            transition: transform 0.3s ease;
+        }
+        .toggle-btn {
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .content {
+            margin-top: 100px; /* Aumentar a margem para evitar sobreposição */
+            width: 100%;
+        }
+        .header-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #0c325c;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 2px solid #0c325c;
+            padding-bottom: 10px;
+        }
+        .search-bar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .list-group-item {
+            background-color: #ffffff;
+            border: 1px solid #0c325c;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            padding: 15px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+        .list-group-item:hover {
+            background-color: #e6f2ff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .list-group-item a {
+            text-decoration: none;
+            color: #0c325c;
+            font-weight: bold;
+            font-size: 1.1em;
+            display: block;
+        }
+        .list-group-item a:hover {
+            color: #004080;
+        }
+        .text-muted em {
+            font-style: italic;
+        }
+        .form-select, .form-control {
+            margin-bottom: 10px;
+            border-radius: 10px;
+            font-size: 1em;
+            background-color: #f0f8ff;
+            color: #333;
+        }
+        .form-select {
+            border: 1px solid #0c325c;
+        }
+        .form-control {
+            border: 1px solid #0c325c;
+        }
+        .row > div {
+            display: flex;
+            align-items: center;
+        }
+        .sticky-header {
+            position: sticky;
+            top: 60px; /* Ajustar para baixo do header-bar */
+            left: 200px; /* Para alinhar com o início do conteúdo principal */
+            z-index: 999;
+            background: transparent; /* Alterar a cor de fundo para evitar sobreposição */
+            padding: 10px 0;
+            color: #ffffff;
+            display: flex;
+            justify-content: space-around;
+            width: 100%; /* Para cobrir a largura do conteúdo principal */
+        }
+        .col-title {
+            text-align: center;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        .col-md-3, .col-md-6, .col-md-12 {
+            display: flex;
+            justify-content: center;
+            color: #0c325c;
+        }
+        .watermark {
+            position: fixed;
+            bottom: -100px;
+            right: -100px;
+            opacity: 0.045;
+            width: 800px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Estilos para as diferentes legendas */
+        .legend-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            position: absolute;
+            top: 15px;
+            left: 15px;
+        }
+        .legenda-ok_pix .legend-indicator {
+            background-color: #28a745;
+        }
+        .legenda-tentativa_recolhimento .legend-indicator {
+            background-color: #ffc107;
+        }
+        .legenda-outra_data .legend-indicator {
+            background-color: #17a2b8;
+        }
+        .legenda-terceiro_sem_data .legend-indicator {
+            background-color: #dc3545;
+        }
+        .legenda-sem_contato .legend-indicator {
+            background-color: #6c757d;
+        }
+        .legenda-cancelado .legend-indicator {
+            background-color: #f8d7da;
+        }
+        .legenda-ja_tratado .legend-indicator {
+            background-color: #20c997;
+        }
+        .legenda-empresarial .legend-indicator {
+            background-color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    {% include 'colaboradores/_loop_header.html' %}
+
+    <div class="container-fluid">
+        <div class="sidebar">
+            <img src="{% static 'LOGO.PNG' %}" alt="Logo da Empresa">
+            <a href="{% url 'index' %}"><i class="fas fa-home"></i> Início</a>
+            <a href="{% url 'minhas_listas' %}"><i class="fas fa-list"></i> Minhas Listas</a>
+            <a href="{% url 'caderno' %}"><i class="fas fa-book"></i> Caderno</a>
+            <a href="{% url 'agenda' %}"><i class="fas fa-calendar-alt"></i> Agenda</a>
+            <a href="{% url 'resultados' %}"><i class="fas fa-chart-line"></i> Resultados</a>
+            <a href="{% url 'material_convalescente' %}"><i class="fas fa-box"></i> Material Convalescente</a>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#calculoMaquininhaModal"><i class="fas fa-calculator"></i> Cálculo de Maquininha</a>
+            <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+        
+        <div class="main-content">
+            <div class="content">
+                <div class="header-title">
+                    {{ nome_lista }}
+                    <small class="text-muted">({{ quantidade_clientes }} clientes)</small>
+                </div>
+
+                <!-- Formulário de Filtro -->
+                <div class="filter-bar">
+                    <form id="filter-form" class="form-inline">
+                        <div class="form-group">
+                            <label for="filter-legenda" class="mr-2">Filtrar por Legenda:</label>
+                            <select id="filter-legenda" class="form-control" onchange="filterClients()">
+                                <option value="all">Todas</option>
+                                <option value="ok_pix">Ok/Pix</option>
+                                <option value="tentativa_recolhimento">Tentativa recolhimento</option>
+                                <option value="outra_data">Outra data</option>
+                                <option value="terceiro_sem_data">Terceiro/Sem data</option>
+                                <option value="sem_contato">Sem contato</option>
+                                <option value="cancelado">Cancelado</option>
+                                <option value="ja_tratado">Já tratado</option>
+                                <option value="empresarial">Empresarial</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
+                <label for="filter-legenda" class="mr-2">Consulta:</label>
+                <div class="search-bar">
+                    <input type="text" id="search-code" class="form-control" placeholder="Digite o código do cliente">
+                    <button id="search-button" class="btn btn-primary mt-2">Pesquisar</button>
+                </div>
+                <ul class="list-group" id="client-list">
+                    {% for linha in linhas %}
+                        <li class="list-group-item {% if interacoes|get_item:linha.codigo_cliente and interacoes|get_item:linha.codigo_cliente|get_item:'legenda' %}legenda-{{ interacoes|get_item:linha.codigo_cliente|get_item:'legenda' }}{% endif %}" id="item-{{ linha.codigo_cliente }}">
+                            <span class="legend-indicator"></span>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <strong>{{ linha.codigo_cliente }}</strong> &ensp;-&ensp;{{ linha.nome_cliente }}
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select legenda-select" data-cliente-id="{{ linha.codigo_cliente }}" data-lista-id="{{ id_lista }}" data-type="legenda" onchange="updateInteraction('{{ linha.codigo_cliente }}', 'legenda', this.value)">
+                                        <option value="" disabled selected>Legenda</option>
+                                        <option value="ok_pix" {% if interacoes|get_item:linha.codigo_cliente|get_item:'legenda' == 'ok_pix' %}selected{% endif %}>Ok/Pix</option>
+                                        <option value="tentativa_recolhimento" {% if interacoes|get_item:linha.codigo_cliente|get_item:'legenda' == 'tentativa_recolhimento' %}selected{% endif %}>Tentativa recolhimento</option>
+                                        <option value="outra_data" {% if interacoes|get_item:linha.codigo_cliente|get_item:'legenda' == 'outra_data' %}selected{% endif %}>Outra data</option>
+                                        <option value="terceiro_sem_data" {% if interacoes|get_item:linha.codigo_cliente|get_item:'legenda' == 'terceiro_sem_data' %}selected{% endif %}>Terceiro/Sem data</option>
+                                        <option value="sem_contato" {% if interacoes|get_item:linha.codigo_cliente|get_item:'legenda' == 'sem_contato' %}selected{% endif %}>Sem contato</option>
+                                        <option value="cancelado" {% if interacoes|get_item:linha.codigo_cliente|get_item:'legenda' == 'cancelado' %}selected{% endif %}>Cancelado</option>
+                                        <option value="ja_tratado" {% if interacoes|get_item:linha.codigo_cliente|get_item:'legenda' == 'ja_tratado' %}selected{% endif %}>Já tratado</option>
+                                        <option value="empresarial" {% if interacoes|get_item:linha.codigo_cliente|get_item:'legenda' == 'empresarial' %}selected{% endif %}>Empresarial</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" data-cliente-id="{{ linha.codigo_cliente }}" data-lista-id="{{ id_lista }}" data-type="motivo" onchange="updateInteraction('{{ linha.codigo_cliente }}', 'motivo', this.value)">
+                                        <option value="" disabled selected>Motivo</option>
+                                        <option value="sem_dinheiro" {% if interacoes|get_item:linha.codigo_cliente|get_item:'motivo' == 'sem_dinheiro' %}selected{% endif %}>Sem dinheiro</option>
+                                        <option value="mes_que_vem" {% if interacoes|get_item:linha.codigo_cliente|get_item:'motivo' == 'mes_que_vem' %}selected{% endif %}>Mês que vem</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" data-cliente-id="{{ linha.codigo_cliente }}" data-lista-id="{{ id_lista }}" data-type="observacao" placeholder="Observação" value="{% if interacoes|get_item:linha.codigo_cliente and interacoes|get_item:linha.codigo_cliente|get_item:'observacao' %}{{ interacoes|get_item:linha.codigo_cliente|get_item:'observacao' }}{% endif %}" onchange="updateInteraction('{{ linha.codigo_cliente }}', 'observacao', this.value)">
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <img src="{% static 'LOGOB.png' %}" alt="Marca d'água" class="watermark">
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para exibir resultados -->
+    <div class="modal fade" id="searchResultModal" tabindex="-1" aria-labelledby="searchResultModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="searchResultModalLabel">Resultado da Pesquisa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="searchResultModalBody">
+                    <!-- Resultado da pesquisa será inserido aqui -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'colaboradores/calculo_maquininha_modal.html' %}
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var searchButton = document.getElementById('search-button');
+            var searchCodeInput = document.getElementById('search-code');
+            var listaId = "{{ id_lista }}"; // Pegue o id_lista do contexto da template
+
+            searchButton.addEventListener('click', function () {
+                var code = searchCodeInput.value.trim();
+                if (code === '') {
+                    alert('Digite um código para pesquisar.');
+                    return;
+                }
+
+                var url = `/colaboradores/search_code/${listaId.replace(/-/g, '')}/${code}/`;
+                console.log("Generated URL:", url); // Adicione esta linha para depuração
+
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    var modalBody = document.getElementById('searchResultModalBody');
+                    if (data.status === 'success') {
+                        modalBody.innerHTML = `<p>O código <strong>${code}</strong> está na lista do colaborador: <strong>${data.colaborador}</strong></p>`;
+                    } else {
+                        modalBody.innerHTML = `<p>Código <strong>${code}</strong> não encontrado em nenhuma lista.</p>`;
+                    }
+                    var searchResultModal = new bootstrap.Modal(document.getElementById('searchResultModal'));
+                    searchResultModal.show();
+                })
+                .catch(error => {
+                    console.error('Erro ao pesquisar o código:', error);
+                    alert('Erro ao pesquisar o código. Tente novamente.');
+                });
+            });
+        });
+
+        function updateInteraction(clienteId, fieldType, value) {
+            const csrftoken = getCookie('csrftoken');
+            const listaId = '{{ id_lista }}';
+
+            fetch(`/colaboradores/update_interaction/${clienteId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    [fieldType]: value,
+                    lista_distribuida_id: listaId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log('Interação atualizada com sucesso!');
+                    if (fieldType === 'legenda') {
+                        updateLegendIndicator(clienteId, value);
+                    }
+                } else {
+                    console.error('Erro ao atualizar interação:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro na requisição:', error);
+            });
+        }
+
+        function updateLegendIndicator(clienteId, value) {
+            const itemElement = document.getElementById(`item-${clienteId}`);
+            const listItem = itemElement.closest('.list-group-item');
+            const legendIndicator = itemElement.querySelector('.legend-indicator');
+            
+            // Remove todas as classes de legenda
+            listItem.className = listItem.className.replace(/\blegenda-[^\s]+\b/g, '');
+
+            // Adiciona a nova classe de legenda
+            if (value) {
+                listItem.classList.add(`legenda-${value}`);
+            }
+        }
+
+        function filterClients() {
+            const selectedLegend = document.getElementById('filter-legenda').value;
+            const clientList = document.getElementById('client-list');
+            const items = clientList.getElementsByClassName('list-group-item');
+
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (selectedLegend === 'all' || item.classList.contains(`legenda-${selectedLegend}`)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

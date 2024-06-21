@@ -1,0 +1,505 @@
+{% include 'colaboradores/calculo_maquininha_modal.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caderno</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f8ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container-fluid {
+            display: flex;
+            width: 100%;
+        }
+        .sidebar {
+            background-color: #0c325c;
+            color: #fff;
+            padding: 20px;
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 60px; 
+            left: 0;
+            transition: transform 0.3s ease;
+            border-radius: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar img {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+            width: 100%;
+            text-align: left;
+        }
+        .sidebar a:hover {
+            background-color: #004080;
+            transform: scale(1.05);
+        }
+        .dropdown {
+            position: relative;
+            display: block;
+            width: 100%;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background-color: #0c325c;
+            min-width: 200px;
+            z-index: 1;
+            border-radius: 0 10px 10px 0;
+        }
+        .dropdown-content a {
+            color: #fff;
+            padding: 10px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+            border-radius: 0;
+        }
+        .dropdown-content a:hover {
+            background-color: #004080;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .main-content {
+            margin-left: 220px;
+            width: calc(100% - 240px);
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+        .sidebar.closed {
+            transform: translateX(-100%);
+        }
+        .main-content.closed {
+            margin-left: 20px;
+            width: calc(100% - 40px);
+        }
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #001f3f;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 60px;
+            z-index: 1000;
+            transition: left 0.3s ease, width 0.3s ease;
+        }
+        .header-bar .title {
+            font-size: 1.5em;
+            font-weight: bold;
+            display: flex;
+            align-items: left;
+        }
+        .header-bar .user-info {
+            font-size: 1em;
+        }
+        .toggle-btn {
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .refresh-btn {
+            cursor: pointer;
+            margin-right: 20px;
+        }
+        .news-ticker {
+            background-color: #001f3f;
+            color: #fff;
+            padding: 10px 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            font-size: 1.0em;
+            width: 78%;
+        }
+        .news-ticker .news-wrapper {
+            display: flex;
+            white-space: nowrap;
+            animation: ticker 30s linear infinite;
+        }
+        .news-ticker .news-item {
+            display: inline-block;
+            padding: 0 50px;
+        }
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .content {
+            margin-top: 80px;
+            width: 100%;
+        }
+        .header-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #0c325c;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 2px solid #0c325c;
+            padding-bottom: 10px;
+            position: relative;
+        }
+        .header-title .refresh-icon {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .btn-primary {
+            background-color: #0c325c;
+            border-color: #0c325c;
+        }
+        .btn-success {
+            background-color: #0c325c;
+            border-color: #0c325c;
+        }
+        .btn-primary:hover {
+            background-color: #004080;
+            border-color: #004080;
+        }
+        .event-card {
+            background-color: #ffffff;
+            border: 1px solid #0c325c;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            padding: 15px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+        .event-card:hover {
+            background-color: #e6f2ff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .event-header {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .event-detail {
+            margin-bottom: 10px;
+        }
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .watermark {
+            position: fixed;
+            bottom: -100px;
+            right: -100px;
+            opacity: 0.045;
+            width: 800px;
+            z-index: -1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    {% include 'colaboradores/_loop_header.html' %}
+
+    <div class="container-fluid">
+        <div class="sidebar">
+            <img src="{% static 'LOGO.PNG' %}" alt="Logo da Empresa">
+            <a href="{% url 'index' %}"><i class="fas fa-home"></i> Início</a>
+            <a href="{% url 'minhas_listas' %}"><i class="fas fa-list"></i> Minhas Listas</a>
+            <a href="{% url 'caderno' %}"><i class="fas fa-book"></i> Caderno</a>
+            <a href="{% url 'agenda' %}"><i class="fas fa-calendar-alt"></i> Agenda</a>
+            <a href="{% url 'resultados' %}"><i class="fas fa-chart-line"></i> Resultados</a>
+            <a href="{% url 'material_convalescente' %}"><i class="fas fa-box"></i> Material Convalescente</a>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#calculoMaquininhaModal"><i class="fas fa-calculator"></i> Cálculo de Maquininha</a>
+            <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+        <div class="main-content">
+            <div class="content">
+                <div class="header-title">
+                    Caderno
+                    <div class="refresh-icon" id="refresh-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                </div>
+                <form method="post" action="{% url 'adicionar_codigo' %}" id="adicionar-codigo-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="codigo_cliente">Código Cliente:</label>
+                        <input type="text" class="form-control" id="codigo_cliente" name="codigo_cliente" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="data_baixa">Data de Baixa:</label>
+                        <input type="date" class="form-control" id="data_baixa" name="data_baixa" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Adicionar Código</button>
+                </form>
+                <form method="post" action="{% url 'processar_pagamentos' %}" id="processar-pagamentos-form">
+                    {% csrf_token %}
+                    <h2 class="header-title">Pagamentos com Baixa</h2>
+                    <div id="pagamentos-com-baixa">
+                    {% if pagamentos_encontrados %}
+                        {% for pagamento in pagamentos_encontrados %}
+                            <div class="event-card" id="pagamento-{{ pagamento.codigo_cliente }}">
+                                <div class="event-header">
+                                    <strong>Código:</strong> {{ pagamento.codigo_cliente }}<br>
+                                    <strong>Titular:</strong> {{ pagamento.titular }}<br>
+                                    <strong>Data de Pagamento:</strong> {{ pagamento.data_pgto }}
+                                </div>
+                                <div class="event-detail">
+                                    {% for parcela in pagamento.parcelas %}
+                                        <div>
+                                            Parcela do mês {{ parcela }}
+                                            <input type="checkbox" name="parcelas" value="{{ pagamento.codigo_cliente }}_{{ parcela }}">
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <input type="hidden" name="codigo_cliente_{{ pagamento.codigo_cliente }}" value="{{ pagamento.codigo_cliente }}">
+                                <input type="hidden" name="nome_titular_{{ pagamento.codigo_cliente }}" value="{{ pagamento.titular }}">
+                                <input type="hidden" name="data_pgto_{{ pagamento.codigo_cliente }}" value="{{ pagamento.data_pgto }}">
+                                <button type="button" class="btn btn-danger remove-btn" data-codigo-cliente="{{ pagamento.codigo_cliente }}">Remover</button>
+                            </div>
+                        {% endfor %}
+                        <button type="button" class="btn btn-success" id="enviar-picotes-btn">Enviar Picote</button>
+                    {% else %}
+                        <p>Não há pagamentos registrados para os códigos adicionados.</p>
+                    {% endif %}
+                    </div>
+                </form>
+                <div>
+                    <h2 class="header-title">Pagamentos sem baixa</h2>
+                    <div id="pagamentos-sem-baixa">
+                    {% if pagamentos_nao_encontrados %}
+                        {% for pagamento in pagamentos_nao_encontrados %}
+                            <div class="event-card" id="pagamento-sem-baixa-{{ pagamento.codigo_cliente }}">
+                                <div class="event-header">
+                                    <strong>Código:</strong> {{ pagamento.codigo_cliente }}<br>
+                                    <strong>Data de Baixa:</strong> {{ pagamento.data_baixa }}
+                                </div>
+                                <p>Não há pagamentos registrados para este código e data de baixa.</p>
+                                <button type="button" class="btn btn-danger remove-btn" data-codigo-cliente="{{ pagamento.codigo_cliente }}">Remover</button>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>Todos os pagamentos foram registrados.</p>
+                    {% endif %}
+                    </div>
+                </div>
+                                                <img src="{% static 'LOGOB.png' %}" alt="Marca d'água" class="watermark">
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.min.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const refreshIcon = document.getElementById('refresh-icon');
+    if (refreshIcon) {
+        refreshIcon.addEventListener('click', function() {
+            location.reload();
+        });
+    }
+
+    document.querySelectorAll('.remove-btn').forEach(function(button) {
+        button.addEventListener('click', function(event) {
+            const codigoCliente = event.target.dataset.codigoCliente;
+            removerBloco(codigoCliente);
+        });
+    });
+
+    const enviarPicotesBtn = document.getElementById('enviar-picotes-btn');
+    if (enviarPicotesBtn) {
+        enviarPicotesBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            const checkboxes = document.querySelectorAll('input[name="parcelas"]:checked');
+            let confirmMessage = 'Enviar os seguintes códigos e parcelas?\n\n';
+            checkboxes.forEach(checkbox => {
+                const [codigo, parcela] = checkbox.value.split('_');
+                confirmMessage += `Código: ${codigo} - Parcela: ${parcela}\n`;
+            });
+            if (checkboxes.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Atenção',
+                    text: 'Nenhuma parcela selecionada.'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Confirmação',
+                    html: `<pre>${confirmMessage}</pre>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sim',
+                    cancelButtonText: 'Não'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const form = document.getElementById('processar-pagamentos-form');
+                        const formData = new FormData(form);
+                        fetch(form.action, {
+                            method: form.method,
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Sucesso',
+                                    text: data.message
+                                });
+                                document.querySelectorAll('input[name="parcelas"]:checked').forEach(input => {
+                                    const bloco = document.getElementById(`pagamento-${input.value.split('_')[0]}`);
+                                    if (bloco) {
+                                        bloco.remove();
+                                    }
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Erro',
+                                    text: data.message
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro',
+                                text: 'Ocorreu um erro ao processar sua solicitação.'
+                            });
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    function removerBloco(codigoCliente) {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        fetch("{% url 'remover_pagamento' %}", {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `codigo_cliente=${codigoCliente}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sucesso',
+                    text: data.message
+                });
+                const bloco = document.getElementById(`pagamento-sem-baixa-${codigoCliente}`);
+                if (bloco) {
+                    bloco.remove();
+                } else {
+                    const blocoBaixa = document.getElementById(`pagamento-${codigoCliente}`);
+                    if (blocoBaixa) {
+                        blocoBaixa.remove();
+                    }
+                }
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    text: data.message
+                });
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro',
+                text: 'Ocorreu um erro ao processar sua solicitação.'
+            });
+        });
+    }
+
+    function updateTicker() {
+        const now = new Date();
+        const month = now.getMonth() + 1; // Janeiro é 0!
+        const year = now.getFullYear();
+        const url = `{% url 'ticker_data' %}?month=${month}&year=${year}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const newsWrapper = document.getElementById('news-wrapper');
+                newsWrapper.innerHTML = `
+                    <div class="news-item">Meta Geral: ${data.picotes_moc_count} | Meta: ${data.meta_picotes} | Percentual da Meta: ${data.percentual_meta_picotes}%</div>
+                    <div class="news-item">Picotes no Caderno: ${data.pagamentos_transferidos_count} | Meta: ${data.meta_pagamentos} | Percentual da Meta: ${data.percentual_meta_pagamentos}%</div>
+                `;
+            })
+            .catch(error => console.error('Erro ao atualizar o ticker:', error));
+    }
+
+    setInterval(updateTicker, 30000); // Atualiza a cada 30 segundos
+    updateTicker(); // Atualiza imediatamente ao carregar a página
+
+    // Dicionário para traduzir os meses
+    const monthTranslations = {
+        "January": "Janeiro",
+        "February": "Fevereiro",
+        "March": "Março",
+        "April": "Abril",
+        "May": "Maio",
+        "June": "Junho",
+        "July": "Julho",
+        "August": "Agosto",
+        "September": "Setembro",
+        "October": "Outubro",
+        "November": "Novembro",
+        "December": "Dezembro"
+    };
+
+    // Função para traduzir os meses nas datas
+    function translateDates() {
+        document.querySelectorAll('.event-header, .event-detail').forEach(element => {
+            element.innerHTML = element.innerHTML.replace(/\b(January|February|March|April|May|June|July|August|September|October|November|December)\b/g, function(match) {
+                return monthTranslations[match];
+            });
+        });
+    }
+
+    // Chama a função ao carregar a página
+    translateDates();
+});
+    </script>
